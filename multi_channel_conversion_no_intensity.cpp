@@ -127,13 +127,14 @@ int processSingleFrame(char* framePath, double* dat, unsigned char *out, int siz
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
 	cout << "sec is: " << diff(time1, time2).tv_sec << " while nsec is: " << diff(time1, time2).tv_nsec << '\n';
 	char *save_bin_name = framePath;
-	string save_name = string(framePath).replace(22, 15, "nointensity1_new_bv_feat6");
+	string save_name = string(framePath).replace(14, 14, "bv_feat6");
 	//save_name = "data.bin";
 	cout << string(save_name) <<'\n';
+	
 	std::ofstream outfile(save_name, std::ofstream::binary);
 	outfile.write(reinterpret_cast<char*>(out), sizeOut);
 	outfile.close();
-
+	
 	return 0;
 }
 // Intensity map: the number of points (counter) 

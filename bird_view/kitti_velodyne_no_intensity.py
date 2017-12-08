@@ -77,22 +77,23 @@ def rescaleTo255(data_array, min_value = 0., max_value = 1.):
     rescaled = (255.0 / max_value  * (data_array - min_value ))
     return rescaled
     
-def saveBvMap(idx, M, bin_folder, save_directory):
+def saveBvMap(idx, M, theta, bin_folder, save_directory):
 #    boundary = [1.0, 21.0, -20, 20, -2.0, 0.4]
     boundary = [0.0, 60.0, -30, 30, -2.0, 0.5]
     feat_format = "npy"
     bin_data = readLidarBin(idx, bin_folder = bin_folder)
-    if bin_data is None:
-	return
+    if theta != 0:
+	bin_data = rotateLidar(bin_data, theta)
     bin_data = bin_data[filterPoint(bin_data, boundary = boundary), :]
     bv_map = generateBvMap(bin_data, M = M, boundary = boundary)
     # Each channel make sense for range [0, 1]
     rescaled = rescaleTo255(bv_map).astype(np.uint8)
+
     if feat_format == "npy":
-        save_name = os.path.join(save_directory, 'bbox2D_%06d.npy'%idx)
+        save_name = os.path.join(save_directory, 'bbox2D_01%04d.npy'%idx)
 	np.save(save_name, rescaled)
     elif feat_format == "png":
-	save_name = os.path.join(save_directory, 'bbox2D_%06d.png'%idx)
+	save_name = os.path.join(save_directory, 'bbox2D_01%04d.png'%idx)
 	im = Image.fromarray(rescaled)
 	im.save(save_name)
     print idx
@@ -205,16 +206,29 @@ def lidar_to_2d_front_view(points,
     else:
         fig.show()
 
+def rotateLidar(bin_data, theta = 0):
+    theta = theta / 180. * np.pi
+    num_points = bin_data.shape[0]
+    for pidx in xrange(num_points):
+	(x, y, z, r) = bin_data[pidx]
+	bin_data[pidx] = [y * np.sin(theta) + x * np.cos(theta),
+			  y * np.cos(theta) - x * np.sin(theta),
+			  z, r]
+	#bin_data[pidx] = [x * np.cos(theta) - y * np.sin(theta),
+	# 	    x * np.sin(theta) + y * np.cos(theta),
+	# 	    z, r]   
+    return bin_data
 
 def multiThreadsGenerateSequenceBvMap():
     M = 5
+    theta = -45 
     bin_folder = '/mnt/data_0/kitti/training/velodyne/'
 #    save_directory = os.path.join("/mnt/data_0/kitti/testing/", 'new_bv_feat{}'.format(M + 2))
-    save_directory = os.path.join('/mnt/data_0/kitti/training/', "nointensity_new_bv_feat{}".format(M+1))   
+    save_directory = os.path.join('/mnt/data_0/kitti/training/', "rotate-45_nointensity_new_bv_feat{}".format(M+1))   
     if not os.path.exists(save_directory):
 	os.mkdir(save_directory)
     my_pool = mp.Pool(processes = 40)
-    my_pool.map(partial(saveBvMap, M = M, bin_folder = bin_folder, save_directory = save_directory), range(7481))
+    my_pool.map(partial(saveBvMap, M = M, theta = theta, bin_folder = bin_folder, save_directory = save_directory), range(7481))
     my_pool.close()
     my_pool.join()
     print("-------------Task Completed-------------------")

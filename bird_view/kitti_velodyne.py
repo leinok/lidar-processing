@@ -216,6 +216,12 @@ def lidar_to_2d_front_view(points,
     else:
         fig.show()
 
+def rotateLidar(s):
+    r = [s[0] * np.cos(theta) - s[1] * np.sin(theta),
+	 s[0] * np.sin(theta) + s[1] * np.cos(theta),
+	 s[2], s[3]]
+   
+    return r
 
 def multiThreadsGenerateSequenceBvMap():
     M = 4

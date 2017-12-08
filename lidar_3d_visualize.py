@@ -60,8 +60,9 @@ def visualize(lidar):
     view_widget.addItem(zgrid)
     xgrid.rotate(90, 0, 1, 0)
     ygrid.rotate(90, 1, 0, 0)
-    #posIdx = np.where(lidar[:, 1] > 0)[0]
-    scatter_plot = gl.GLScatterPlotItem(pos = lidar[:, :3], color = pg.glColor('r'), size = 0.1)
+    #posIdx = np.where((lidar[:, 2] < 120) & (lidar[:, 2] > -230))[0]
+    posIdx = np.where(lidar[:, 1] < 0)[0]
+    scatter_plot = gl.GLScatterPlotItem(pos = lidar[posIdx, :3], color = pg.glColor('r'), size = 0.1)
     view_widget.addItem(scatter_plot)
     pdb.set_trace()
 
@@ -71,6 +72,7 @@ def visualize_new(lidar):
     w.show()    
 
 if __name__ == "__main__":
-    lidar = readLidarBin('/mnt/data_0/SAIC_DATA/VLP32_2017_1103/xyzi_000356_441197.bin', False)
+    lidar = readLidarBin('/mnt/data_0/SAIC_DATA/label_data/xyzi_000002_477155.bin', False)
+    lidar = readLidarBin('/mnt/data_0/kitti/training/velodyne/000025.bin', True)
     visualize(lidar)
 #    run()
