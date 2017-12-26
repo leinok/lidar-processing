@@ -7,10 +7,11 @@ import matplotlib.cm as cm
 #bin_name = '/home/saiclei/data.bin'
 #bin_data = np.fromfile(bin_name, dtype = np.uint8).reshape(6, 600, 600)
 
-#real_data = np.load('/mnt/data_0/kitti/training/nointensity_new_bv_feat6/bbox2D_003987.npy')
+real_data = np.load('/mnt/data_0/kitti/training/nointensity_mc_data/nointensity_new_bv_feat6/bbox2D_003987.npy')
 
-original_data = np.load('/mnt/data_0/kitti/training/nointensity_mc_data/nointensity_new_bv_feat6_rotate_3times_blind/bbox2D_002359.npy')
-file_name = 'bbox2D_026382'
+original_name = 'bbox2D_000178'
+original_data = np.load('/mnt/data_0/kitti/training/nointensity_mc_data/nointensity_new_bv_feat6_rotate_3times_blind/{}.npy'.format(original_name))
+file_name = 'bbox2D_010178'
 rotate45_data = np.load('/mnt/data_0/kitti/training/nointensity_mc_data/nointensity_new_bv_feat6_rotate_3times_blind/{}.npy'.format(file_name))
 
 f, axarr = plt.subplots(2, 3)
@@ -20,11 +21,15 @@ axarr[0, 2].imshow(original_data[:, :, 2], vmin = 0, vmax = 255)
 axarr[1, 0].imshow(original_data[:, :, 3], vmin = 0, vmax = 255)
 axarr[1, 1].imshow(original_data[:, :, 4], vmin = 0, vmax = 255)
 axarr[1, 2].imshow(original_data[:, :, 5], vmin = 0, vmax = 255)
-bbox = [275, 85, 288, 89]
-axarr[1, 2].add_patch(plt.Rectangle((bbox[0], bbox[1]),
-		        bbox[2] - bbox[0],
-		        bbox[3] - bbox[1], fill = False,
-		       edgecolor = 'r', linewidth = 1))
+bboxes = np.loadtxt('/mnt/data_0/kitti/training/volume_60/All/New_Train_Annotations_rotate_3times/{}.txt'.format(original_name))
+if bboxes.ndim == 1:
+	bboxes = np.expand_dims(bboxes, axis = 0)
+for i in xrange(bboxes.shape[0]):
+	bbox = bboxes[i, :] 
+	axarr[1, 2].add_patch(plt.Rectangle((bbox[0], bbox[1]),
+			        	bbox[3] - bbox[0],
+			        	bbox[4] - bbox[1], fill = False,
+		    		    edgecolor = 'r', linewidth = 1))
 
 f.colorbar(im)
 
